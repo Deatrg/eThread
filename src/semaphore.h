@@ -2,6 +2,6 @@ typedef struct _semaphore{
 	int value;
 }semaphore;
 
-void semaphore_create();
-void semaphore_wait();
-void semaphore_signal();
+int semaphore_create(semaphore*, int);
+int semaphore_wait(semaphore*);
+int semaphore_signal(semaphore*);
