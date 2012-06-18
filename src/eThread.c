@@ -2,11 +2,12 @@
 
 int eThread_create(eThread* target, void(*function)(void) , int stackSize){
 	static int numThreads = 0;
-	if(runningThread == NULL){
-		runningThread = target;
+	if(runQueue == NULL){
+		runQueue = target;
 	}
 	else{
-		runningThread->next = target;
+		for(eThread* temp = runQueue; runQueue->next != NULL; runQueue = runQueue->next);
+		runQueue->next = target;
 	}
 	getcontext(&(target->context));
 	target->threadID = numThreads++;
@@ -21,5 +22,40 @@ int eThread_create(eThread* target, void(*function)(void) , int stackSize){
 }
 
 int eThread_destory(void){
+	runningThread->state = EXIT;
+	raise(SIGALRM);
 	return 0;
+}
+
+int eThread_yield(void){
+	raise(SIGALRM);
+	return 0;
+}
+
+int eThread_setQuantum(int newValue){
+	timeQuantum = newValue;
+	return 0;
+}
+
+static void secheduler(int value){
+	int exitToMain;
+	eThread* oldThread = runningThread;
+	if(runningThread->state != EXIT || runningThread->state != BLOCKED){
+		runningThread->state = RUNNABLE;
+	}
+	do{
+		runningThread = runningThread->next;
+		if(runningThread->next == NULL){
+			runningThread = runQueue;
+		}
+	}while(runningThread->state != RUNNABLE && (exitToMain = (runningThread != oldThread)));
+	if(exitToMain != 0 && runningThread->state != RUNNABLE){
+		//No Runnable Threads
+		swapcontext(&(oldThread->context), &mainThread->context);
+	}
+	else{
+		runningThread->state = RUNNING;
+		swapcontext(&(oldThread->context), &(runningThread->context));
+	}
+	return;
 }

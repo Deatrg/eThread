@@ -1,3 +1,4 @@
+#include <time.h>
 #include <stdlib.h>
 #include <signal.h>
 #include <ucontext.h>
@@ -19,11 +20,14 @@ enum STATES{
 	EXIT
 };
 
-static eThread* runQueue;
-static eThread* runningThread;
-static eThread* mainThread;
+static eThread* runQueue;	//Points to head of runQueue
+static eThread* runningThread;	//Points to currently running thread in the runQueue
+static eThread* mainThread;	//Points back to the main thread of execution
 
 static int timeQuantum;
 
 int eThread_create(eThread*, void(*)(void), int);
 int eThread_destroy(void);
+int eThread_yield(void);
+int eThread_setQuantum(int);
+static void scheduler(int);
