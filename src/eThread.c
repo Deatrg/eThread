@@ -6,8 +6,8 @@ int eThread_create(eThread* target, void(*function)(void) , int stackSize){
 		runQueue = target;
 	}
 	else{
-		for(eThread* temp = runQueue; runQueue->next != NULL; runQueue = runQueue->next);
-		runQueue->next = target;
+		for(eThread* temp = runQueue; temp->next != NULL; temp = temp->next);
+		temp->next = target;
 	}
 	getcontext(&(target->context));
 	target->threadID = numThreads++;
