@@ -37,6 +37,9 @@ int eThread_setQuantum(int newValue){
 }
 
 void scheduler(int value){
+	if(runningThread->state != EXIT || runningThread->state != BLOCKED){//Check if eThread_exit was called
+		runningThread->state = RUNNABLE;//Indicates was swapped not returned.
+	}
 	swapcontext(&runningThread->context, &idleContext);
 }
 
@@ -57,7 +60,7 @@ void eThread_init(void){
 	getcontext(&idleContext);
 	idleContext.uc_stack.ss_sp = calloc(IDLESTACK, sizeof(char));
 	idleContext.uc_stack.ss_size = IDLESTACK;
-//	idleContext.uc_link = &mainContext;//Return to main thread on exit
+	idleContext.uc_link = &mainContext;//Return to main thread on exit
 	sigemptyset(&idleContext.uc_sigmask);
 	makecontext(&idleContext, idleThread, 0, NULL);
 	//Swap to idle
@@ -78,29 +81,21 @@ void eThread_init(void){
 void idleThread(void){
 	while(1){
 		eThread* oldThread = runningThread;
-		if(runningThread->state != EXIT || runningThread->state != BLOCKED){
-			runningThread->state = RUNNABLE;
-		}
 		do{
 			runningThread = runningThread->next;
 			if(runningThread == NULL){
 				runningThread = runQueue;
 			}
 		}while(runningThread->state != RUNNABLE && runningThread != oldThread);
-		eThread* temp;
-		for(temp = runQueue; temp->next != NULL; temp = temp->next){
-		//	printf("ID: %d|| State: %d \n", temp->threadID, temp->state);
-		}
-		//printf("ID: %d|| State: %d \n", temp->threadID, temp->state);
 		if(runningThread == oldThread && runningThread->state != RUNNABLE){
-			//No Runnable Threads
-			break;//Let idleContext return and use uc_link to return to main
+			break;//No RUNNABLE threads left. Let idleContext return and use uc_link to return to main context.
 		}
 		else{
 			runningThread->state = RUNNING;
 			swapcontext(&idleContext, &(runningThread->context));
-			//runningThread->state = EXIT;//Indicate context has returned
-			//Need to decide whether thread returned of was swapped out
+		}
+		if(runningThread->state == RUNNING){
+			runningThread->state = EXIT;//Thead returned
 		}
 	}
 	puts("Returning to Main");
