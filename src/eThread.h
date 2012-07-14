@@ -13,19 +13,21 @@
 #define	BLOCKED		2
 #define	EXIT		3
 
+#define IDLESTACK	4*1024
+
 typedef struct _eThread{
-	ucontext_t context;
 	int threadID;
 	int state;
+	ucontext_t context;
 	struct _eThread* next;
 }eThread;
 
-static eThread* runQueue;	//Points to head of runQueue
-static eThread* runningThread;	//Points to currently running thread in the runQueue
-static eThread  mainThread;	//Contains the context of the main thread of execution
-static eThread	idleThread;	//Does All Schduling
+static eThread*		runQueue;	//Points to head of runQueue
+static eThread* 	runningThread;	//Points to currently running thread in the runQueue
+static ucontext_t	mainContext;	//Context of the main thread of execution
+static ucontext_t	idleContext;	//Does All Schduling
 
-static int 	timeQuantum;
+static int timeQuantum;
 
 int 	eThread_create(eThread*, void(*)(void), int);
 void 	eThread_exit(void);
@@ -33,4 +35,5 @@ int 	eThread_yield(void);
 int 	eThread_setQuantum(int);
 void 	eThread_init(void);
 void	scheduler(int);
+void	idleThread(void);
 #endif
