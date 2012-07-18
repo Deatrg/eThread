@@ -19,7 +19,6 @@ int eThread_create(eThread* target, void(*function)(void) , int stackSize){
 	target->context.uc_link = &idleContext;//Return to idle thread on exit
 	sigemptyset(&(target->context.uc_sigmask));
 	makecontext(&target->context, function, 0, NULL);
-	printf("Made Thread: %d || Context Pointer: %ld\n", target->threadID, (long) &target->context);
 	return 0;
 }
 
@@ -37,7 +36,7 @@ int eThread_setQuantum(int newValue){
 }
 
 void scheduler(int value){
-	if(runningThread->state != EXIT || runningThread->state != BLOCKED){//Check if eThread_exit was called
+	if(runningThread->state != EXIT || runningThread->state != BLOCKED){//Check if eThread_exit was called or thread was blocked.
 		runningThread->state = RUNNABLE;//Indicates was swapped not returned.
 	}
 	swapcontext(&runningThread->context, &idleContext);
@@ -55,7 +54,6 @@ void eThread_init(void){
 	tval.it_value.tv_sec = 0;
 	tval.it_value.tv_usec = timeQuantum;
 	runningThread = runQueue;
-
 	//Setup idleContext
 	getcontext(&idleContext);
 	idleContext.uc_stack.ss_sp = calloc(IDLESTACK, sizeof(char));
@@ -63,18 +61,12 @@ void eThread_init(void){
 	idleContext.uc_link = &mainContext;//Return to main thread on exit
 	sigemptyset(&idleContext.uc_sigmask);
 	makecontext(&idleContext, idleThread, 0, NULL);
-	//Swap to idle
+	//Swap to idleContext
 	setitimer(ITIMER_REAL, &tval, 0);
-	swapcontext(&mainContext, &idleContext);
-	//Turn Timer Off upon returning to Main
 	tval.it_value.tv_usec = 0;
+	swapcontext(&mainContext, &idleContext);
+	//Turn timer off upon returning to Main
 	setitimer(ITIMER_REAL, &tval, 0);
-	puts("Return");
-	eThread* temp;
-	for(temp = runQueue; temp->next != NULL; temp = temp->next){
-		printf("ID: %d|| State: %d \n", temp->threadID, temp->state);
-	}
-	printf("ID: %d|| State: %d \n", temp->threadID, temp->state);
 	return;
 }
 
@@ -95,9 +87,8 @@ void idleThread(void){
 			swapcontext(&idleContext, &(runningThread->context));
 		}
 		if(runningThread->state == RUNNING){
-			runningThread->state = EXIT;//Thead returned
+			runningThread->state = EXIT;//Thread returned
 		}
 	}
-	puts("Returning to Main");
 	return;
 }
