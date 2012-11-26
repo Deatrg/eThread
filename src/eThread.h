@@ -1,13 +1,12 @@
 #ifndef ETHREAD
 #define ETHREAD
 
-#include <stdio.h>
+//C++ Headers
+#include <queue>
+//C Headers
 #include <signal.h>
-#include <time.h>
-#include <stdlib.h>
 #include <ucontext.h>
 #include <sys/time.h>
-#include <queue>
 
 #define	RUNNING		0
 #define	RUNNABLE	1

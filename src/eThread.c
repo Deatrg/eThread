@@ -7,12 +7,11 @@ int eThread_create(eThread* target, void(*function)(void) , int stackSize){
 	getcontext(&target->context);
 	target->threadID = numThreads++;
 	target->state = RUNNABLE;
-	target->next = NULL;
-	target->context.uc_stack.ss_sp = calloc(stackSize, sizeof(char));
+	target->context.uc_stack.ss_sp = new char[stackSize];
 	target->context.uc_stack.ss_size = stackSize;
 	target->context.uc_link = &idleContext;//Return to idle thread on exit
 	sigemptyset(&(target->context.uc_sigmask));
-	makecontext(&target->context, function, 0, NULL);
+	makecontext(&target->context, function, 0, 0);
 	runQueue.push(target);
 	return 0;
 }
@@ -41,7 +40,7 @@ void eThread_init(void){
 	//Set Handler
 	struct sigaction action;
 	action.sa_handler = scheduler;
-	sigaction(SIGALRM, &action, NULL);
+	sigaction(SIGALRM, &action, 0);
 	//Set Timer
 	struct itimerval tval;
 	tval.it_interval.tv_sec = 0;
@@ -50,11 +49,11 @@ void eThread_init(void){
 	tval.it_value.tv_usec = timeQuantum;
 	//Setup idleContext
 	getcontext(&idleContext);
-	idleContext.uc_stack.ss_sp = calloc(IDLESTACK, sizeof(char));
+	idleContext.uc_stack.ss_sp = new char[IDLESTACK];
 	idleContext.uc_stack.ss_size = IDLESTACK;
 	idleContext.uc_link = &mainContext;//Return to main thread on exit
 	sigemptyset(&idleContext.uc_sigmask);
-	makecontext(&idleContext, idleThread, 0, NULL);
+	makecontext(&idleContext, idleThread, 0, 0);
 	//Swap to idleContext
 	setitimer(ITIMER_REAL, &tval, 0);
 	tval.it_value.tv_usec = 0;
