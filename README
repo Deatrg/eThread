@@ -1,1 +1,1 @@
-eThread is a user level thread / co-routine package written in C and using ucontext. 
+eThread is a user level thread / co-routine package written in C/C++ and using ucontext. 
