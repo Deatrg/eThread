@@ -1,16 +1,15 @@
+#ifndef SEMAPHORE
+#define SEMAPHORE
 #include "eThread.h"
+#include <queue>
 
-typedef struct _waitQueue{
-	struct _waitQueue* next;
-	eThread* queued;
-}waitQueue;
-
-typedef struct _semaphore{
+class semaphore{
+private:
 	int value;
-	waitQueue* blocked;
-}semaphore;
-
-int semaphore_create(semaphore*, int);
-int semaphire_destory(semaphore*);
-int semaphore_wait(semaphore*);
-int semaphore_signal(semaphore*);
+	std::queue<eThread*> waitQueue;
+public:
+	semaphore(int);
+	void wait(void);
+	void signal(void);
+};
+#endif

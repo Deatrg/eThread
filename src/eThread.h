@@ -21,11 +21,7 @@ typedef struct _eThread{
 	ucontext_t context;
 }eThread;
 
-static std::queue<eThread*>	runQueue;	//scheduler run queue
-static ucontext_t		mainContext;	//Context of the main thread of execution
-static ucontext_t		idleContext;	//Does All Scheduling
-
-static int timeQuantum;
+extern std::queue<eThread*> runQueue;       //scheduler run queue
 
 int 	eThread_create(eThread*, void(*)(void), int);
 void 	eThread_exit(void);
