@@ -20,12 +20,11 @@ typedef struct _eThread{
 	int threadID;
 	int state;
 	ucontext_t context;
-	struct _eThread* next;
 }eThread;
 
-static std::queue<eThread*>	runQueue;	//Points to head of runQueue
+static std::queue<eThread*>	runQueue;	//scheduler run queue
 static ucontext_t		mainContext;	//Context of the main thread of execution
-static ucontext_t		idleContext;	//Does All Schduling
+static ucontext_t		idleContext;	//Does All Scheduling
 
 static int timeQuantum;
 
