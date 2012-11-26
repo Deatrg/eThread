@@ -1,14 +1,14 @@
 test : test.c libeThread.a
-	g++ -o test -g test.c libeThread.a
+	g++ -Wall -o test -g test.c libeThread.a
 
-libeThread.a : eThread.o 
-	ar rcs libeThread.a eThread.o
+libeThread.a : eThread.o semaphore.o
+	ar rcs libeThread.a eThread.o semaphore.o
 
-semaphore.o : semaphore.h semaphore.c
-	g++ -c semaphore.c
+semaphore.o : semaphore.h semaphore.cpp
+	g++ -c -Wall semaphore.cpp
 
-eThread.o : eThread.h eThread.c
-	g++ -g -Wall -c eThread.c
+eThread.o : eThread.h eThread.cpp
+	g++ -g -Wall -c eThread.cpp
 
 clean:
 	rm *\.[a,o]

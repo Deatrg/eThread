@@ -1,5 +1,11 @@
 #include "eThread.h"
 
+std::queue<eThread*>     runQueue;
+
+static ucontext_t               mainContext;    //Context of the main thread of execution
+static ucontext_t               idleContext;    //Does All Scheduling
+static int 			timeQuantum;	//Time run on kernel thread in milleseconds
+
 using namespace std;
 
 int eThread_create(eThread* target, void(*function)(void) , int stackSize){
@@ -30,10 +36,11 @@ int eThread_setQuantum(int newValue){
 }
 
 void scheduler(int value){
-	if(runQueue.front()->state != EXIT || runQueue.front()->state != BLOCKED){//Check if eThread_exit was called or thread was blocked.
+	sighold(SIGALRM);
+	if(runQueue.front()->state == RUNNING){//Check if eThread_exit was called or thread was blocked.
 		runQueue.front()->state = RUNNABLE;//Indicates was swapped not returned.
 	}
-	swapcontext(&runQueue.front()->context, &idleContext);
+	swapcontext(&(runQueue.front()->context), &idleContext);
 }
 
 void eThread_init(void){
@@ -77,6 +84,7 @@ void idleThread(void){
 		}
 		else{
 			runQueue.front()->state = RUNNING;
+			sigrelse(SIGALRM);
 			swapcontext(&idleContext, &(runQueue.front()->context));
 		}
 		if(runQueue.front()->state == RUNNING){
