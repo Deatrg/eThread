@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <ucontext.h>
 #include <sys/time.h>
+#include <queue>
 
 #define	RUNNING		0
 #define	RUNNABLE	1
@@ -22,10 +23,9 @@ typedef struct _eThread{
 	struct _eThread* next;
 }eThread;
 
-static eThread*		runQueue;	//Points to head of runQueue
-static eThread* 	runningThread;	//Points to currently running thread in the runQueue
-static ucontext_t	mainContext;	//Context of the main thread of execution
-static ucontext_t	idleContext;	//Does All Schduling
+static std::queue<eThread*>	runQueue;	//Points to head of runQueue
+static ucontext_t		mainContext;	//Context of the main thread of execution
+static ucontext_t		idleContext;	//Does All Schduling
 
 static int timeQuantum;
 
