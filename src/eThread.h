@@ -28,6 +28,4 @@ void 	eThread_exit(void);
 int 	eThread_yield(void);
 int 	eThread_setQuantum(int);
 void 	eThread_init(void);
-void	scheduler(int);
-void	idleThread(void);
 #endif
