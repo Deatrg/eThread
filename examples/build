@@ -1,0 +1,6 @@
+#!/bin/bash
+cd ../src
+make
+mv libeThread.a ../examples/libeThread.a
+g++ -o test test.c libeThread.a
+rm libeThread.a
