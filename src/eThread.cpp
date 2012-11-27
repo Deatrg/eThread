@@ -2,9 +2,9 @@
 
 std::queue<eThread*>     runQueue;
 
-static ucontext_t               mainContext;    //Context of the main thread of execution
-static ucontext_t               idleContext;    //Does All Scheduling
-static int 			timeQuantum;	//Time run on kernel thread in milleseconds
+static ucontext_t	 mainContext;    //Context of the main thread of execution
+static ucontext_t        idleContext;    //Does All Scheduling
+static int 		 timeQuantum;	//Time run on kernel thread in milleseconds
 
 using namespace std;
 
@@ -58,14 +58,14 @@ void eThread_init(void){
 	getcontext(&idleContext);
 	idleContext.uc_stack.ss_sp = new char[IDLESTACK];
 	idleContext.uc_stack.ss_size = IDLESTACK;
-	idleContext.uc_link = &mainContext;//Return to main thread on exit
+	idleContext.uc_link = &mainContext; //Return to main thread on exit
 	sigemptyset(&idleContext.uc_sigmask);
 	makecontext(&idleContext, idleThread, 0, 0);
 	//Swap to idleContext
 	setitimer(ITIMER_REAL, &tval, 0);
-	tval.it_value.tv_usec = 0;
 	swapcontext(&mainContext, &idleContext);
 	//Turn timer off upon returning to Main
+	tval.it_value.tv_usec = 0;
 	setitimer(ITIMER_REAL, &tval, 0);
 	return;
 }
