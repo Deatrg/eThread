@@ -35,7 +35,7 @@ int eThread_setQuantum(int newValue){
 	return (timeQuantum = newValue);
 }
 
-void scheduler(int value){
+static void scheduler(int value){
 	sighold(SIGALRM);
 	if(runQueue.front()->state == RUNNING){//Check if eThread_exit was called or thread was blocked.
 		runQueue.front()->state = RUNNABLE;//Indicates was swapped not returned.
@@ -70,7 +70,7 @@ void eThread_init(void){
 	return;
 }
 
-void idleThread(void){
+static void idleThread(void){
 	while(1){
 		eThread* oldThread = runQueue.front();
 		runQueue.push(oldThread);
