@@ -1,17 +1,24 @@
 #include "eThread.h"
 
-std::queue<eThread*>     runQueue;
-
-static ucontext_t	 mainContext;    //Context of the main thread of execution
-static ucontext_t        idleContext;    //Does All Scheduling
-static int 		 timeQuantum;	//Time run on kernel thread in milleseconds
-
 using namespace std;
+
+static void scheduler(int);
+static void idleThread(void);
+
+static int 		timeQuantum;	//Time run on kernel thread in microseconds
+static ucontext_t	mainContext;  	//Context of the main thread of execution
+static ucontext_t   	idleContext;	//Does All Scheduling
+static queue<eThread*>	runQueue;
+
+
+eThread* getRunningThread(void){
+	return runQueue.front();
+}
 
 int eThread_create(eThread* target, void(*function)(void) , int stackSize){
 	static int numThreads = 0;
 	getcontext(&target->context);
-	target->threadID = numThreads++;
+	target->threadID = numThreads;
 	target->state = RUNNABLE;
 	target->context.uc_stack.ss_sp = new char[stackSize];
 	target->context.uc_stack.ss_size = stackSize;
@@ -19,7 +26,7 @@ int eThread_create(eThread* target, void(*function)(void) , int stackSize){
 	sigemptyset(&(target->context.uc_sigmask));
 	makecontext(&target->context, function, 0, 0);
 	runQueue.push(target);
-	return 0;
+	return numThreads++;
 }
 
 void eThread_exit(void){
@@ -27,8 +34,8 @@ void eThread_exit(void){
 	raise(SIGALRM);
 }
 
-int eThread_yield(void){
-	return raise(SIGALRM);
+void eThread_yield(void){
+	raise(SIGALRM);
 }
 
 int eThread_setQuantum(int newValue){
@@ -80,7 +87,7 @@ static void idleThread(void){
 			runQueue.pop();
 		}
 		if(runQueue.front() == oldThread && runQueue.front()->state != RUNNABLE){
-			break;//No RUNNABLE threads left. Let idleContext return and use uc_link to return to main context.
+			return;//No RUNNABLE threads left. Let idleContext return and use uc_link to return to main context.
 		}
 		else{
 			runQueue.front()->state = RUNNING;
@@ -91,5 +98,4 @@ static void idleThread(void){
 			runQueue.front()->state = EXIT;//Thread returned
 		}
 	}
-	return;
 }

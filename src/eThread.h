@@ -21,11 +21,11 @@ typedef struct _eThread{
 	ucontext_t context;
 }eThread;
 
-extern std::queue<eThread*> runQueue;       //scheduler run queue
-
 int 	eThread_create(eThread*, void(*)(void), int);
-void 	eThread_exit(void);
-int 	eThread_yield(void);
 int 	eThread_setQuantum(int);
+void 	eThread_yield(void);
+void 	eThread_exit(void);
 void 	eThread_init(void);
+eThread* getRunningThread(void);
+
 #endif

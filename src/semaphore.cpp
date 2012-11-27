@@ -8,8 +8,8 @@ void semaphore::wait(void){
 	sighold(SIGALRM);
 	this->value -= 1;
 	if(this->value < 0){
-		runQueue.front()->state = BLOCKED;
-		this->waitQueue.push(runQueue.front());
+		getRunningThread()->state = BLOCKED;
+		this->waitQueue.push(getRunningThread());
 		sigrelse(SIGALRM);
 		raise(SIGALRM);
 	}

@@ -1,13 +1,14 @@
 #ifndef SEMAPHORE
 #define SEMAPHORE
-#include "eThread.h"
+
 #include <queue>
+#include "eThread.h"
 
 class semaphore{
-private:
+    private:
 	int value;
 	std::queue<eThread*> waitQueue;
-public:
+    public:
 	semaphore(int);
 	void wait(void);
 	void signal(void);
