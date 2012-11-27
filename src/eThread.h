@@ -8,12 +8,9 @@
 #include <ucontext.h>
 #include <sys/time.h>
 
-#define	RUNNING		0
-#define	RUNNABLE	1
-#define	BLOCKED		2
-#define	EXIT		3
+#define IDLESTACK 4*1024
 
-#define IDLESTACK	4*1024
+enum States {RUNNING, RUNNABLE, BLOCKED, EXIT};
 
 typedef struct _eThread{
 	int threadID;
