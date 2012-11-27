@@ -2,6 +2,7 @@
 cd ../src
 make
 mv libeThread.a ../examples/libeThread.a
+make clean
 cd ../examples
 g++ -o test test.c libeThread.a
 rm libeThread.a
