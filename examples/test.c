@@ -6,9 +6,9 @@
 
 using namespace std;
 
-static semaphore counter_mutex(1);
 int counter = 0;
 double result = 0.0;
+semaphore counter_mutex(1);
 
 void func1(void);
 void func2(void);
@@ -30,7 +30,6 @@ void func1(void){
 		printf("1:%d\n", i);
 		counter++;
 	}
-//	eThread_exit();
 }
 
 void func2(void){
@@ -38,7 +37,6 @@ void func2(void){
 		printf("2:%d\n",i);
 		counter++;
 	}
-//	eThread_exit();
 }
 
 
@@ -46,7 +44,6 @@ void function(void){
 	for(int i = 0; i < 5; i++){
 		counter_mutex.wait();
 		for(int j = 0; j < 1000; j++){
-//			cout << runQueue.front()->threadID << endl;
 			result = result + sin(counter) * tan(counter);
 		}
 		counter++;

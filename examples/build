@@ -2,5 +2,6 @@
 cd ../src
 make
 mv libeThread.a ../examples/libeThread.a
+cd ../examples
 g++ -o test test.c libeThread.a
 rm libeThread.a
